@@ -1,0 +1,17 @@
+FROM python:3.12-slim-bookworm
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    chromium \
+    chromium-driver \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/ && \
+    pip config set install.trusted-host mirrors.aliyun.com && \
+    pip install --no-cache-dir selenium==4.27.1
+
+WORKDIR /app
+COPY selenium_stress.py .
+
+ENV PYTHONUNBUFFERED=1
+
+CMD ["python", "selenium_stress.py"]

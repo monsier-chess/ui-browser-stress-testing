@@ -1,0 +1,20 @@
+config:
+  target: 'http://webapp:5000'
+  engines:
+    playwright:
+      launchOptions:
+        headless: true
+        args:
+          - '--no-sandbox'
+          - '--disable-setuid-sandbox'
+          - '--disable-dev-shm-usage'
+  processor: './artillery-flows.js'
+  phases:
+    - duration: 10
+      arrivalRate: 2
+      name: ui flow
+
+scenarios:
+  - engine: playwright
+    name: form submit
+    testFunction: submitForm

@@ -1,0 +1,38 @@
+services:
+  webapp:
+    build: .
+    ports:
+      - "5000:5000"
+
+  k6-test:
+    image: grafana/k6:latest-with-browser
+    depends_on:
+      - webapp
+    environment:
+      - K6_BROWSER_ENABLED=true
+    volumes:
+      - ./k6-script.js:/scripts/k6-script.js
+    command: run /scripts/k6-script.js
+
+  artillery-test:
+    image: artilleryio/artillery:latest
+    depends_on:
+      - webapp
+    working_dir: /scripts
+    volumes:
+      - ./artillery.yml:/scripts/artillery.yml
+      - ./artillery-flows.js:/scripts/artillery-flows.js
+    command: run artillery.yml
+
+  selenium-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.selenium
+    depends_on:
+      - webapp
+    environment:
+      - WEBAPP_URL=http://webapp:5000
+      - SELENIUM_WORKERS=4
+      - SELENIUM_ROUNDS=8
+    volumes:
+      - ./selenium_stress.py:/app/selenium_stress.py
